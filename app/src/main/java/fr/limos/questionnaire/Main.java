@@ -1,28 +1,35 @@
 package fr.limos.questionnaire;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
+import java.io.File;
+import java.util.List;
+
+import fr.limos.Handlers.DatabaseHandler;
+import fr.limos.entities.Labelchu;
 
 /**
  * Created by taysuan on 18/01/2016.
  */
 public class Main extends Activity implements View.OnClickListener {
 
+    String downloadUrl = "http://localhost:8080/chu/Download/";
+    String fileName = "chulite.sqlite3";
+    String folder = "abcd";
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    private GoogleApiClient client;
+
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -33,127 +40,53 @@ public class Main extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Creating a new RelativeLayout
-      /*  RelativeLayout masterrl = new RelativeLayout(this);
 
-        // Defining the RelativeLayout layout parameters.
-        // In this case I want to fill its parent
-        RelativeLayout.LayoutParams masterrlp = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.FILL_PARENT,
-                RelativeLayout.LayoutParams.FILL_PARENT);
-        masterrlp.addRule(RelativeLayout.ALIGN_PARENT_START);
+        //DownloadDatabase db=new DownloadDatabase();
+        //db.DownloadDatabase(downloadUrl, folder, fileName);
+        //Toast toast = Toast.makeText(this, "Les données sont télechargées" , Toast.LENGTH_LONG);
+        //toast.show();
+        /*-----------------------
+        String PACKAGE_NAME = getApplication().getPackageName();
+        Log.w("Env package name", PACKAGE_NAME);
 
-
-        LinearLayout llSection = new LinearLayout(this);
-        LinearLayout.LayoutParams paramllSection = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        llSection.setOrientation(LinearLayout.VERTICAL);
-
-
-        // Creating a new TextView SECtion
-        TextView tvsection = new TextView(this);
-        tvsection.setText("Section");
-
-        // Setting the parameters on the TextView
-        tvsection.setLayoutParams(paramllSection);
-
-        LinearLayout llQuestion = new LinearLayout(this);
-        LinearLayout.LayoutParams paramllQuestion = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        llQuestion.setOrientation(LinearLayout.VERTICAL);
-
-        // Creating a new TextView SECtion
-        TextView tvquestion = new TextView(this);
-        tvquestion.setText("question?");
-
-        // Setting the parameters on the TextVie
-        tvsection.setLayoutParams(paramllQuestion);
-
-        // Adding the TextView to the RelativeLayout as a child
-        masterrl.addView(tvsection);
-// Adding the TextView to the RelativeLayout as a child
-        masterrl.addView(tvquestion);
+        File root = Environment.getDataDirectory();
+        Log.w("Environement path", root.toString());
+        File localdir = new File(root.getAbsolutePath() + "/data/" + PACKAGE_NAME + "/databases/chulite.sqlite3");
+        Log.w("absolute path", localdir.toString());
+        if (localdir.exists() == false) Log.d("path Existe: ", "false");
+        else Log.d("path Existe: ", "true");
+        //-----------------------*/
 
 
-        // Setting the RelativeLayout as our content view
-        setContentView(masterrl, masterrlp);*/
-        buildUI();
+        DatabaseHandler db = new DatabaseHandler(this);
+// Reading all contacts
+        Log.d("Reading: ", "Reading count..");
+        int count = db.getLabelchusCount();
+        Log.d("Nombre de label :", count + " ");
+        /*List<Labelchu> labelchus = db.getAllLabelchus();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        for (Labelchu la : labelchus) {
+            String log = "Id: " + la.getIdLabel() + "Short label " + la.getShortlabel() + " ,Labelfr: " + la.getLabelfr();
+            // Writing Contacts to log
+            Log.d("From Sqlite: ", log);
+        }
+        buildUI();*/
+
+
     }
+
 
     @Override
     public void onStart() {
         super.onStart();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
 
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://fr.limos.questionnaire/http/host/path")
-        );
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction2 = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://fr.limos.questionnaire/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction2);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction2 = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://fr.limos.questionnaire/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction2);
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://fr.limos.questionnaire/http/host/path")
-        );
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
     }
+
 
     void buildUI() {
         LinearLayout masterLayout = new LinearLayout(this);
@@ -226,8 +159,8 @@ public class Main extends Activity implements View.OnClickListener {
         linearLayout_561.addView(textView_651);
 
         Button btncheck2 = new Button(this);
-        int i1=1;
-btncheck2.setTag("bbb");
+        int i1 = 1;
+        btncheck2.setTag("bbb");
         btncheck2.setId(View.generateViewId());
         btncheck2.setText("Check");
 
@@ -289,7 +222,7 @@ btncheck2.setTag("bbb");
         LinearLayout.LayoutParams paramsNext = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-       btnNext.setLayoutParams(paramsNext);
+        btnNext.setLayoutParams(paramsNext);
         masterLayout.addView(btnNext);
 
 //
@@ -300,7 +233,7 @@ btncheck2.setTag("bbb");
     @Override
     public void onClick(View v) {
         // show a message with the button's ID
-        Toast toast = Toast.makeText(this, "You clicked button "+v.getId()+" " + v.getTag(), Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(this, "You clicked button " + v.getId() + " " + v.getTag(), Toast.LENGTH_LONG);
         toast.show();
 
         // get the parent layout and remove the clicked button

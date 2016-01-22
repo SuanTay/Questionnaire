@@ -16,6 +16,8 @@ import android.util.Log;
 
 import fr.limos.entities.Labelchu;
 
+import static android.database.sqlite.SQLiteDatabase.openOrCreateDatabase;
+
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
@@ -114,10 +116,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
         Cursor cursor = db.rawQuery(selectQuery, null);
-
+int i=0;
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
+                i++;
+                Log.w("CountWhile",i+" "+ cursor.getString(2));
                 Labelchu labelchu = new Labelchu();
                 labelchu.setIdLabel(Integer.parseInt(cursor.getString(0)));
                 labelchu.setShortlabel(cursor.getString(1));
@@ -167,10 +171,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Getting labelchus Count
     public int getLabelchusCount() {
         String countQuery = "SELECT  * FROM " + TABLE_LABEL ;
+
         SQLiteDatabase db = this.getReadableDatabase();
 
+    Log.w("getLabalCount :",db.getPath());
         Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
+       // cursor.close();
 
         // return count
         return cursor.getCount();

@@ -1,6 +1,7 @@
 package fr.limos.questionnaire;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -11,10 +12,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.limos.Handlers.DatabaseHandler;
 import fr.limos.entities.Labelchu;
+import fr.limos.util.DownloadDatabase;
 
 /**
  * Created by taysuan on 18/01/2016.
@@ -41,40 +44,103 @@ public class Main extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //DownloadDatabase db=new DownloadDatabase();
-        //db.DownloadDatabase(downloadUrl, folder, fileName);
+        Database2Handler db2 = new Database2Handler(this);
+//savoir ou est le lieu de téléchargement public
+        Log.w("public download",Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+
+
+        /**
+         * CRUD Operations
+         * */
+        // Inserting Contacts
+        Log.d("Insert: ", "Inserting ..");
+        db2.addContact(new Contact("Ravi", "9100000000"));
+        db2.addContact(new Contact("Srinivas", "9199999999"));
+        db2.addContact(new Contact("Tommy", "9522222222"));
+        db2.addContact(new Contact("Karthik", "9533333333"));
+
+        // Reading all contacts
+        Log.d("Reading: ", "Reading all contacts..");
+
+        List<Contact>  contacts = db2.getAllContacts();
+
+        for (Contact cn : contacts) {
+            String log = "Id: " + cn.getID() + " ,Name: " + cn.getName() + " ,Phone: " + cn.getPhoneNumber();
+            // Writing Contacts to log
+            Log.d("Name: ", log);
+            Toast toast=Toast.makeText(this,log,Toast.LENGTH_LONG);
+        }
+        Log.d("Database Name: ", db2.getDatabaseName());
+        //copy File
+
+
+
+
+        //DownloadDatabase db2=new DownloadDatabase();
+        //db2.DownloadDatabase(downloadUrl, folder, fileName);
         //Toast toast = Toast.makeText(this, "Les données sont télechargées" , Toast.LENGTH_LONG);
         //toast.show();
-        /*-----------------------
+       // -----------------------
         String PACKAGE_NAME = getApplication().getPackageName();
         Log.w("Env package name", PACKAGE_NAME);
 
         File root = Environment.getDataDirectory();
+        File downloadpublic=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         Log.w("Environement path", root.toString());
         File localdir = new File(root.getAbsolutePath() + "/data/" + PACKAGE_NAME + "/databases/chulite.sqlite3");
+        File dowDB = new File (downloadpublic.getAbsolutePath()+"/chulite.sqlite3");
+        DownloadDatabase.copyFile(dowDB,localdir);
+
         Log.w("absolute path", localdir.toString());
         if (localdir.exists() == false) Log.d("path Existe: ", "false");
         else Log.d("path Existe: ", "true");
-        //-----------------------*/
+        //-----------------------
+//initialisation
+     /*   File file = new File("/data/data/fr.limos.questionnaire/databases/");
+        if (file.exists()) {
+            final String command = "chmod 777 /data/data/fr.limos.questionnaire/";
+            try {
+                Process p = Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.w("Chomd","Failed");
+            }
+            boolean result = file.setExecutable(true);
 
-
+            Log.e("intailisation", "trpb67, RESULT IS " + result);
+        }
+*/
         DatabaseHandler db = new DatabaseHandler(this);
 // Reading all contacts
         Log.d("Reading: ", "Reading count..");
-        int count = db.getLabelchusCount();
-        Log.d("Nombre de label :", count + " ");
-        /*List<Labelchu> labelchus = db.getAllLabelchus();
+       int count = db.getLabelchusCount();
+      Log.d("Nombre de label :", count + " ");
+      List<Labelchu> labelchus = db.getAllLabelchus();
 
         for (Labelchu la : labelchus) {
             String log = "Id: " + la.getIdLabel() + "Short label " + la.getShortlabel() + " ,Labelfr: " + la.getLabelfr();
             // Writing Contacts to log
             Log.d("From Sqlite: ", log);
         }
-        buildUI();*/
+        //buildUI();
 
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //Permission granted.
+                    //Continue with writing files...
+                }
+                else{
+                    //Permission denied.
+                }
+                break;
+        }
+    }
 
     @Override
     public void onStart() {

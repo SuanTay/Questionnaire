@@ -1,23 +1,35 @@
 package fr.limos.questionnaire;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.limos.WS.FillDB;
-import fr.limos.db.CreatDB;
-import fr.limos.db.Dao.LabelHome;
-import fr.limos.db.Dao.SectionHome;
-import fr.limos.db.entities.Label;
+import fr.limos.db.DataBaseHelper;
+import fr.limos.db.dao.AnswerHome;
+import fr.limos.db.dao.LabelHome;
+import fr.limos.db.dao.OrderHome;
+import fr.limos.db.dao.PatientHome;
+import fr.limos.db.dao.QuestionHome;
+import fr.limos.db.dao.SectionHome;
+import fr.limos.db.dao.SurveyHome;
+import fr.limos.db.entities.Answer;
+import fr.limos.db.entities.Order;
+import fr.limos.db.entities.Patient;
+import fr.limos.db.entities.Question;
 import fr.limos.db.entities.Section;
+import fr.limos.db.entities.Survey;
 
 
 /**
@@ -25,43 +37,32 @@ import fr.limos.db.entities.Section;
  */
 public class Main extends Activity implements View.OnClickListener {
 
-    final int CURRENT_SURVEY=0;
-    final int CURRENT_SECTION=0;
-    final int CURRENT_QUESTION=0;
+ public static int i = 0;
+    final Context context = this;
 
+
+    Button bValider;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         //creation si pas creer ?
-        CreatDB db = new CreatDB(this);
+        DataBaseHelper db = new DataBaseHelper(this);
+        //Future WS
+        FillDB fb = new FillDB(this);
+        fb.dellAll();
+        fb.addAll();
+        //le patient
+        //PatientHome ph=new PatientHome(this);
+        Patient thisPatient = new Patient();
+        thisPatient.setIdPatient(1);
+        thisPatient.setCodepatient("sua.tay");
 
-        // emulation du service WEB
-      /*  FillDB fill = new FillDB(this);
-        fill.dellAll();
-        fill.addAll();*/
-
-      //Section
-        SectionHome sh=new SectionHome(this);
-        List<Section> sectionList = new ArrayList<Section>();
-        sectionList = sh.getAllSections();
-
-        for(Section s:sectionList){
-            Log.w("Section", s.getLabel()+"");
-            //Label
-            LabelHome lh= new LabelHome(this);
-            List<Label> labelList= new ArrayList<Label>();
-            labelList=lh.getAllLabels();
-            for(Label l:labelList){
-                if(s.getLabel()==l.getIdLabel())
-                    Log.w("Section ",l.getLabelfr());
-            }
-        }
-    MasterLayout masterlayout = new MasterLayout(this);
-        Log.w("setContentView:","masterlayout");
-        setContentView(masterlayout, masterlayout.getLayoutParams());
+        //Next Question or Next Section
+        next(thisPatient);
     }
 
 
@@ -76,159 +77,150 @@ public class Main extends Activity implements View.OnClickListener {
         super.onStop();
     }
 
+    void build2(final Context context, final Patient thispatient,Survey survey, Section section, Question question, final List<Answer> answerList) {
 
-    void buildUI() {
-        LinearLayout masterLayout = new LinearLayout(this);
-        masterLayout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams paramsMasterLayout = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        masterLayout.setLayoutParams(paramsMasterLayout);
-//Questionnaire
-        TextView tvSection = new TextView(this);
-        tvSection.setText("Survey");
-
-        LinearLayout.LayoutParams paramsSectionLayout = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        tvSection.setLayoutParams(paramsSectionLayout);
-        masterLayout.addView(tvSection);
-//Section
-        TextView tvQuestion = new TextView(this);
-        tvQuestion.setText("Section 1");
+      final   LabelHome lh = new LabelHome(this);
 
 
-        LinearLayout.LayoutParams paramsQuestionLayout = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        tvQuestion.setLayoutParams(paramsQuestionLayout);
-        masterLayout.addView(tvQuestion);
-//Question
-        LinearLayout linearLayout_119 = new LinearLayout(this);
-        linearLayout_119.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams layout_140 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        linearLayout_119.setLayoutParams(layout_140);
+        LinearLayout masterlayout = new LinearLayout(this);
+        masterlayout.setOrientation(LinearLayout.VERTICAL);
+        masterlayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        //texte Section
+        TextView txtQuestionnaire = new TextView(this);
+        txtQuestionnaire.setText(lh.getLabelFromInt(survey.getLabel()).getLabelfr());
+        LinearLayout.LayoutParams par = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+       // par.weight = 0.1f;
+        txtQuestionnaire.setLayoutParams(par);
+        //txtQuestionnaire.setBackgroundColor(Color.YELLOW);
 
-        TextView textView_52 = new TextView(this);
-        textView_52.setText("Q1");
+        masterlayout.addView(txtQuestionnaire);
 
-        LinearLayout.LayoutParams layout_97 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        textView_52.setLayoutParams(layout_97);
-        linearLayout_119.addView(textView_52);
+        //texte Section
+        TextView txtSection = new TextView(this);
 
-        Button btncheck1 = new Button(this);
-        btncheck1.setTag("aaa");
-        btncheck1.setId(View.generateViewId());
-        btncheck1.setOnClickListener(this);
-        btncheck1.setText("Check");
-        LinearLayout.LayoutParams layout_650 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        btncheck1.setLayoutParams(layout_650);
-        linearLayout_119.addView(btncheck1);
-        masterLayout.addView(linearLayout_119);
-        //Question
+        txtSection.setText(lh.getLabelFromInt(section.getLabel()).getLabelfr());
+        LinearLayout.LayoutParams parSec = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+       // parSec.weight = 0.1f;
+        txtSection.setLayoutParams(parSec);
+       // txtSection.setBackgroundColor(Color.DKGRAY);
 
-        LinearLayout linearLayout_561 = new LinearLayout(this);
-        linearLayout_561.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams layout_483 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        linearLayout_561.setLayoutParams(layout_483);
+        masterlayout.addView(txtSection);
+        //texte question
+        TextView txtQuestion = new TextView(this);
 
-        TextView textView_651 = new TextView(this);
-        textView_651.setText("Q2");
+        txtQuestion.setText(lh.getLabelFromInt(question.getLabel()).getLabelfr());
+        LinearLayout.LayoutParams parQue = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        //parQue.weight = 0.3f;
+        txtQuestion.setLayoutParams(parQue);
+        //txtQuestion.setBackgroundColor(Color.RED);
+        masterlayout.addView(txtQuestion);
 
-        LinearLayout.LayoutParams layout_851 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        textView_651.setLayoutParams(layout_851);
-        linearLayout_561.addView(textView_651);
+        //reponse
+       final RadioGroup rg = new RadioGroup(this);
+        int k = 0;
 
-        Button btncheck2 = new Button(this);
-        int i1 = 1;
-        btncheck2.setTag("bbb");
-        btncheck2.setId(View.generateViewId());
-        btncheck2.setText("Check");
+        LinearLayout.LayoutParams parRep1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+       // parRep1.weight = 0.1f;
 
-        btncheck2.setOnClickListener(this);
+        for (Answer answer : answerList) {
+            k++;
+            Log.w("conut answer", k + "");
+            RadioButton radioButton = new RadioButton(this);
+            radioButton.setText(lh.getLabelFromInt(answer.getLabel()).getLabelfr());
+            radioButton.setId(k);
+            radioButton.setLayoutParams(parRep1);
+            rg.addView(radioButton);
+        }
+        //add  Radio Group
+        masterlayout.addView(rg);
+
+        bValider = new Button(this);
 
 
-        LinearLayout.LayoutParams layout_701 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        btncheck2.setLayoutParams(layout_701);
-        linearLayout_561.addView(btncheck2);
-        masterLayout.addView(linearLayout_561);
-        //Question
+        bValider.setText("Valider");
+        LinearLayout.LayoutParams parValider = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+       // parValider.weight = 0.1f;
+        bValider.setLayoutParams(parValider);
+        bValider.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                next(thispatient);
 
-        LinearLayout linearLayout_786 = new LinearLayout(this);
-        linearLayout_786.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams layout_629 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        linearLayout_786.setLayoutParams(layout_629);
+                int selected_id=rg.getCheckedRadioButtonId();
+                Log.w("selected",selected_id+"");
+                Answer answerResult= new Answer();
+                answerResult= answerList.get(selected_id-1);
+                AnswerHome ah = new AnswerHome(context);
+                ah.save(answerResult,thispatient);
 
-        TextView textView_503 = new TextView(this);
-        textView_503.setText("Q3");
+                Log.w("Cliked id",lh.getLabelFromInt(answerResult.getLabel()).getLabelfr());
+            }
+        });
+        masterlayout.addView(bValider);
+        setContentView(masterlayout, masterlayout.getLayoutParams());
 
-        LinearLayout.LayoutParams layout_863 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        textView_503.setLayoutParams(layout_863);
-        linearLayout_786.addView(textView_503);
-
-        Button btncheck3 = new Button(this);
-
-        btncheck3.setText("Check");
-        btncheck3.setTag("ccc");
-        btncheck3.setId(View.generateViewId());
-        btncheck3.setOnClickListener(this);
-        LinearLayout.LayoutParams layout_928 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        btncheck3.setLayoutParams(layout_928);
-        linearLayout_786.addView(btncheck3);
-        masterLayout.addView(linearLayout_786);
-// fin Question
-        TextView textView_381 = new TextView(this);
-        textView_381.setText("Fin question");
-
-        LinearLayout.LayoutParams paramsLayoutNext = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        textView_381.setLayoutParams(paramsLayoutNext);
-        masterLayout.addView(textView_381);
-//button Fin Question
-        Button btnNext = new Button(this);
-
-        btnNext.setText("Next");
-        btncheck3.setTag("ddd");
-        btnNext.setId(View.generateViewId());
-        btnNext.setOnClickListener(this);
-        LinearLayout.LayoutParams paramsNext = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        btnNext.setLayoutParams(paramsNext);
-        masterLayout.addView(btnNext);
-
-//
-        setContentView(masterLayout, paramsMasterLayout);
+    }
+    void builfin(){
+        TextView txtMerci = new TextView(this);
+        txtMerci.setText("Merci!");
+        setContentView(txtMerci);
     }
 
+    public void next(Patient thispatient) {
+
+        i++;
+
+
+
+        Log.w("order", "1 order"+i);
+        OrderHome oh = new OrderHome(this);
+        Order order = new Order();
+        order = oh.getOrderFromInt(i);
+        //fin questionnaire
+        if (order==null) {
+            builfin();
+
+        }
+        Log.w("survey", "survey");
+        //moteur
+        //1 Questionnaire
+        Log.w("1 Questionnaire", "1 Questionnaire");
+        SurveyHome surh = new SurveyHome(this);
+        Survey survey = new Survey();
+        survey = surh.getSurveyFromId(order.getId_survey());
+        Log.w("section", "section");
+        //1 Section
+        SectionHome sh = new SectionHome(this);
+        Section section = new Section();
+        section = sh.getSectionFromId(order.getId_section());
+        Log.w("question", "question");
+
+        //1 question
+        QuestionHome qh = new QuestionHome(this);
+        Question question = new Question();
+        question = qh.getQuestionFromId(order.getId_question());
+
+        Log.w("answerlist", "answerlist");
+        //les reponses possible
+        AnswerHome ah = new AnswerHome(this);
+        List<Answer> answerList = new ArrayList<Answer>();
+        answerList = ah.getForQuestion(question.getId_question());
+        //affichage
+        build2(this,thispatient, survey, section, question, answerList);
+    }
 
     @Override
     public void onClick(View v) {
-        // show a message with the button's ID
-        Toast toast = Toast.makeText(this, "You clicked button " + v.getId() + " " + v.getTag(), Toast.LENGTH_LONG);
-        toast.show();
 
-        // get the parent layout and remove the clicked button
-        LinearLayout parentLayout = (LinearLayout) v.getParent();
-        parentLayout.removeView(v);
+    }
+
+
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        Main.i = i;
     }
 }
